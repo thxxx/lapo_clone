@@ -28,11 +28,12 @@ def _create_tensordict(length: int, obs_depth) -> TensorDict:
         device="cpu",
     )
 
-
+# 원래 td는 T개의 sequential data. 여기서 t-k ~ t+1 observation만 가져오기 위한 코드
 def _unfold_td(td: TensorDictBase, seq_len: int, unfold_step: int = 1):
     """
     Unfolds the given TensorDict along the time dimension.
     The unfolded TensorDict shares its underlying storage with the original TensorDict.
+    seq_len = 2를 사용! => o_t, o_t+1 만 사용
     """
     res_batch_size = (td.batch_size[0] - seq_len + 1,)
     td = td.apply(
