@@ -55,7 +55,6 @@ class DataStager:
         obs_depth: int = 3,
         seq_len: int = 2,
     ) -> None:
-
         self.seq_len = seq_len
         self.td: TensorDict = None  # type: ignore
         self.obs_depth = obs_depth

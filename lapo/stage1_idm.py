@@ -37,8 +37,12 @@ def train_step():
 
     batch = next(train_iter)
 
+    print("batch before idm : ", batch)
     vq_loss, vq_perp = idm.label(batch)
+    print("batch after idm : ", batch)
     wm_loss = wm.label(batch)
+    print("batch before fdm : ", batch)
+    # 둘다 batch가 업데이트 된다.
     loss = wm_loss + vq_loss
 
     opt.zero_grad()

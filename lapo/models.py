@@ -182,15 +182,19 @@ class ConvSequence(nn.Module):
 def get_impala(
     shape: ObsShapeType,
     impala_cnn_scale: int,
-    out_channels: tuple[int, ...],
-    out_features: int,
+    out_channels: tuple[int, ...], # 여기서는 16, 32, 32
+    out_features: int, # 여기서는 256
 ) -> tuple[nn.Sequential, nn.Linear]:
     conv_stack = []
     for out_ch in out_channels:
         conv_seq = ConvSequence(shape, impala_cnn_scale * out_ch)
         shape = conv_seq.get_output_shape()
         conv_stack.append(conv_seq)
+    # conv_seq를 반복. conv_seq는 conv + max_pool_2d + res*2
+    # Residual은 relu -> cond -> relu -> conv + x
     conv_stack = nn.Sequential(*conv_stack, nn.Flatten(), nn.ReLU())
+
+    # shape이 아마.. 32, 8, 8 ?
     fc = nn.Linear(in_features=np.prod(shape), out_features=out_features)
     return conv_stack, fc
 
@@ -369,7 +373,7 @@ class IDM(nn.Module):
         self.conv_stack, self.fc = get_impala(
             obs_shape, impala_scale, impala_channels, impala_features
         )
-        self.policy_head = nn.Linear(impala_features, action_dim)
+        self.policy_head = nn.Linear(impala_features, action_dim) # action_dim = cfg.model.la_dim  : 256 -> 2 * 4 * 16
 
         # initialize quantizer
         self.vq = VQEmbeddingEMA(vq_config)
